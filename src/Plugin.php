@@ -3,7 +3,6 @@ namespace BinDependencies;
 
 use BinDependencies\Configuration\Repository;
 use BinDependencies\Configuration\RepositoryInterface;
-use BinDependencies\Dependencies\DependencyException;
 use BinDependencies\Dependencies\Validator;
 use Composer\Composer;
 use Composer\DependencyResolver\Operation\InstallOperation;
@@ -15,18 +14,52 @@ use Composer\Installer\PackageEvents;
 use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
 
+/**
+ * A composer plugin to enforce local binary dependency constraints
+ * are met on package installation.
+ *
+ * @package BinDependencies
+ */
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
+    /**
+     * Has the root package been validated?
+     *
+     * @var bool
+     */
     protected static $rootPackageValidated = false;
 
+    /**
+     * Composer instance.
+     *
+     * @var Composer
+     */
     protected $composer;
 
+    /**
+     * IO instsance.
+     *
+     * @var IOInterface
+     */
     protected $io;
 
+    /**
+     * Plugin repository instance.
+     *
+     * @var RepositoryInterface
+     */
     protected $config;
 
+    /**
+     * Dependency validator instance.
+     *
+     * @var Validator
+     */
     protected $validator;
 
+    /**
+     * Plugin constructor.
+     */
     public function __construct()
     {
         $this->setDefaultConfigurationRepository();
@@ -34,6 +67,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $this->validator = new Validator($this->config);
     }
 
+    /**
+     * Set the configuration repository instance.
+     *
+     * @param RepositoryInterface $config
+     * @return $this
+     */
     public function setConfiguration(RepositoryInterface $config): self
     {
         $this->config = $config;
@@ -41,6 +80,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         return $this;
     }
 
+    /**
+     * Set configuration repository instance to default configuration.
+     */
     protected function setDefaultConfigurationRepository(): void
     {
         $defaultPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config';
@@ -48,23 +90,32 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $this->setConfiguration(new Repository($defaultPath));
     }
 
+    /**
+     * @inheritDoc
+     */
     public function activate(Composer $composer, IOInterface $io)
     {
         $this->composer = $composer;
 
         $this->io = $io;
-    } 
+    }
 
+    /**
+     * @inheritDoc
+     */
     public static function getSubscribedEvents()
     {
         return array(
             PackageEvents::PRE_PACKAGE_INSTALL => array('validateEventDependencies'),
             PackageEvents::PRE_PACKAGE_UPDATE => array('validateEventDependencies'),
-            //ScriptEvents::POST_INSTALL_CMD => array('resolveRootDependencies'),
-            //ScriptEvents::POST_UPDATE_CMD => array('resolveRootDependencies'),
         );
     }
 
+    /**
+     * Validate the root packages dependencies.
+     *
+     * @throws DependencyException
+     */
     public function validateRootDependencies()
     {
         if (static::$rootPackageValidated === false) {
@@ -74,6 +125,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
     }
 
+    /**
+     * Validate dependencies attached to an event.
+     *
+     * @param PackageEvent $event
+     * @throws DependencyException
+     */
     public function validateEventDependencies(PackageEvent $event)
     {        
         $this->validateRootDependencies();
@@ -85,6 +142,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
     }
 
+    /**
+     * Validate a packages dependencies.
+     *
+     * @param PackageInterface $package
+     * @throws DependencyException
+     */
     public function validatePackageDependencies(PackageInterface $package)
     {
         $extra = $package->getExtra();

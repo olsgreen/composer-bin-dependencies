@@ -1,6 +1,6 @@
 {
     "name": "olsgreen/composer-bin-dependencies",
-    "description": "Executable dependencies for composer.",
+    "description": "A composer plugin to enforce local binary dependency constraints are met on package installation.",
     "type": "composer-plugin",
     "license": "MIT",
     "authors": [

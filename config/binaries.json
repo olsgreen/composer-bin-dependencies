@@ -1,5 +1,11 @@
 [
+    "convert",
     "git",
+    "node",
+    "npm",
     "pdftotext",
-    "wkhtmltopdf"
+    "python",
+    "tar",
+    "wkhtmltopdf",
+    "yarn"
 ]

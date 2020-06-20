@@ -3,18 +3,45 @@
 
 namespace BinDependencies\Configuration;
 
+/**
+ * Simple read-only configuration store that is hydrated from JSON files.
+ *
+ * @package BinDependencies\Configuration
+ */
 
 class Repository implements RepositoryInterface
 {
+    /**
+     * Path to the JSON configuration files.
+     *
+     * @var string
+     */
     protected $repositoryPath;
 
+    /**
+     * Repository store.
+     *
+     * @var array
+     */
     protected $data = [];
 
+    /**
+     * Repository constructor.
+     *
+     * @param string $path
+     */
     public function __construct(string $path)
     {
         $this->setRepositoryPath($path);
     }
 
+    /**
+     * Set the location of the repository source
+     * files and load them.
+     *
+     * @param string $path
+     * @return $this
+     */
     public function setRepositoryPath(string $path): self
     {
         $this->repositoryPath = $path;
@@ -24,11 +51,48 @@ class Repository implements RepositoryInterface
         return $this;
     }
 
+    /**
+     * Get the repository source path.
+     *
+     * @return string
+     */
     public function getRepositoryPath(): string
     {
         return $this->repositoryPath;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function all(): array
+    {
+        return $this->data;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function has(string $key): bool
+    {
+        return $this->retrieve($key) !== false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function get(string $key, $default = false)
+    {
+        if ($value = $this->retrieve($key)) {
+            return $value;
+        }
+
+        return $default;
+    }
+
+    /**
+     * Load the repository data from source files.
+     */
     protected function load(): void
     {
         $data = [];
@@ -43,25 +107,12 @@ class Repository implements RepositoryInterface
         $this->data = $data;
     }
 
-    public function all(): array
-    {
-        return $this->data;
-    }
-
-    public function has(string $key): bool
-    {
-        return $this->retrieve($key) !== false;
-    }
-
-    public function get(string $key, $default = false)
-    {
-        if ($value = $this->retrieve($key)) {
-            return $value;
-        }
-
-        return $default;
-    }
-
+    /**
+     * Retrieve a key from the store.
+     *
+     * @param string $key
+     * @return array|bool|mixed
+     */
     protected function retrieve(string $key)
     {
         $segments = explode('.', $key);
