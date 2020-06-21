@@ -1,5 +1,5 @@
-[![Latest Stable Version]](https://packagist.org/packages/olsgreen/composer-bin-dependencies) [![License]](https://github.com/wikimedia/composer-merge-plugin/blob/master/LICENSE)
-[![Build Status]](https://travis-ci.org/olsgreen/composer-bin-dependencies)
+![License]](https://github.com/wikimedia/composer-merge-plugin/blob/master/LICENSE)
+![Tests](https://github.com/olsgreen/composer-bin-dependencies/workflows/Tests/badge.svg)
 
 Composer Bin(ary) Dependencies
 =====================
@@ -60,9 +60,9 @@ You can validate dependencies are available using either require or warn.
 }
 ```
 
-####Version Constraints
+#### Version Constraints
 Only explicit binaries support version constraints, this is due to the need to call the binary to obtain its version number. The definitions can be found [binaries.json](http://) configuration file, 
 feel free to open a pull request to add more.
 
-####License
+#### License
 MIT
