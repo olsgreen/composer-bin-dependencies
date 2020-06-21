@@ -1,8 +1,10 @@
-![License]](https://github.com/wikimedia/composer-merge-plugin/blob/master/LICENSE)
-![Tests](https://github.com/olsgreen/composer-bin-dependencies/workflows/Tests/badge.svg)
-
 Composer Bin(ary) Dependencies
 =====================
+
+![Packagist Version](https://img.shields.io/packagist/v/olsgreen/composer-bin-dependencies)
+[![GitHub license](https://img.shields.io/github/license/olsgreen/composer-bin-dependencies)](https://github.com/olsgreen/composer-bin-dependencies)
+![Tests](https://github.com/olsgreen/composer-bin-dependencies/workflows/Tests/badge.svg)
+
 
 A composer plugin to enforce local binary dependency constraints are met on package installation.
 
