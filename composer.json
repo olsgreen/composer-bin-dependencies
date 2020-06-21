@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=7.1",
-        "composer-plugin-api": "^1.1",
+        "composer-plugin-api": "^1.1|^2.0",
         "composer/semver": "^1.0|^2.0|^3.0",
         "ext-json": "*"
     },
