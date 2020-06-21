@@ -1,0 +1,41 @@
+name: Tests
+
+on: ['push', 'pull_request']
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: [7.2, 7.3, 7.4]
+        dependency-version: [prefer-stable, prefer-lowest]
+        composer: [v1, v2]
+
+    name: PHP ${{ matrix.php }}  - Composer ${{ matrix.composer }} (${{ matrix.dependency-version }})
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ~/.composer/cache/files
+        key: dependencies-php-${{ matrix.php }}-composer-${{ matrix.composer }}-${{ matrix.dependency-version }}
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: mbstring, zip
+        tools: composer:${{ matrix.composer }}
+        coverage: pcov
+
+    - name: Install Composer dependencies
+      run: |
+        composer install --${{ matrix.dependency-version }} --no-interaction --prefer-dist --no-suggest
+
+    - name: PHPUnit Testing
+      run: vendor/bin/phpunit

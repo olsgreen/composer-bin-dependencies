@@ -69,7 +69,6 @@ class Repository implements RepositoryInterface
         return $this->data;
     }
 
-
     /**
      * @inheritDoc
      */

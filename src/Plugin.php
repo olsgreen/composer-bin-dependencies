@@ -64,7 +64,17 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $this->setDefaultConfigurationRepository();
 
-        $this->validator = new Validator($this->config);
+        $this->setValidator(new Validator($this->config));
+    }
+
+    /**
+     * Get the configuration repository instance.
+     *
+     * @return RepositoryInterface
+     */
+    public function getConfiguration(): RepositoryInterface
+    {
+        return $this->config;
     }
 
     /**
@@ -81,6 +91,29 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
 
     /**
+     * Get the dependency validator instance.
+     *
+     * @return Validator
+     */
+    public function getValidator(): Validator
+    {
+        return $this->validator;
+    }
+
+    /**
+     * Set the dependency validator instance.
+     *
+     * @param Validator $validator
+     * @return $this
+     */
+    public function setValidator(Validator $validator): self
+    {
+        $this->validator = $validator;
+
+        return $this;
+    }
+
+    /**
      * Set configuration repository instance to default configuration.
      */
     protected function setDefaultConfigurationRepository(): void
@@ -88,6 +121,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $defaultPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config';
 
         $this->setConfiguration(new Repository($defaultPath));
+    }
+
+    /**
+     * Determine whether the root package dependencies have been validated.
+     *
+     * @return bool
+     */
+    public static function hasRootPackageBeenValidated()
+    {
+        return static::$rootPackageValidated;
     }
 
     /**
@@ -106,40 +149,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            PackageEvents::PRE_PACKAGE_INSTALL => array('validateEventDependencies'),
-            PackageEvents::PRE_PACKAGE_UPDATE => array('validateEventDependencies'),
+            PackageEvents::PRE_PACKAGE_INSTALL => 'validateEventDependencies',
+            PackageEvents::PRE_PACKAGE_UPDATE => 'validateEventDependencies',
         );
-    }
-
-    /**
-     * Validate the root packages dependencies.
-     *
-     * @throws DependencyException
-     */
-    public function validateRootDependencies()
-    {
-        if (static::$rootPackageValidated === false) {
-            $this->validatePackageDependencies($this->composer->getPackage());
-
-            static::$rootPackageValidated = true;
-        }
-    }
-
-    /**
-     * Validate dependencies attached to an event.
-     *
-     * @param PackageEvent $event
-     * @throws DependencyException
-     */
-    public function validateEventDependencies(PackageEvent $event)
-    {        
-        $this->validateRootDependencies();
-
-        $op = $event->getOperation();
-        if ($op instanceof InstallOperation || $op instanceof UpdateOperation) {
-            $package = $op->getPackage();
-            $this->validatePackageDependencies($package);
-        }
     }
 
     /**
@@ -183,6 +195,38 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                     throw new DependencyException($message);
                 }
             }
+        }
+    }
+
+    /**
+     * Validate the root packages dependencies.
+     *
+     * @throws DependencyException
+     */
+    public function validateRootDependencies()
+    {
+        if (static::$rootPackageValidated === false) {
+            $this->validatePackageDependencies($this->composer->getPackage());
+
+            static::$rootPackageValidated = true;
+        }
+    }
+
+    /**
+     * Validate dependencies attached to an event.
+     *
+     * @param PackageEvent $event
+     * @throws DependencyException
+     */
+    public function validateEventDependencies(PackageEvent $event)
+    {        
+        $this->validateRootDependencies();
+
+        $op = $event->getOperation();
+        if ($op instanceof InstallOperation) {
+            $this->validatePackageDependencies($op->getPackage());
+        } elseif ($op instanceof UpdateOperation) {
+            $this->validatePackageDependencies($op->getTargetPackage());
         }
     }
 }
