@@ -124,7 +124,7 @@ class Validator
      * @param string $constraint
      * @return bool
      */
-    protected function isActionableConstraint(string $constraint)
+    protected function isActionableConstraint(string $constraint = null)
     {
         return !empty($constraint) && !is_null($constraint) && $constraint !== '*';
     }
@@ -138,9 +138,9 @@ class Validator
      * @param string $constraint
      * @return bool
      */
-    protected function isVersionConstrainable(string $dependency, string $constraint): bool
+    protected function isVersionConstrainable(string $dependency, string $constraint = null): bool
     {
-        $versionConstrainableBinaries = $this->config->get('binaries', []);
+        $versionConstrainableBinaries = (array) $this->config->get('binaries', []);
 
         return $this->isActionableConstraint($constraint) &&
             in_array($dependency, $versionConstrainableBinaries);
