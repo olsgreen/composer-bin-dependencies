@@ -5,6 +5,7 @@ namespace Tests\Dependencies;
 
 
 use BinDependencies\Configuration\RepositoryInterface;
+use BinDependencies\Dependencies\Utils;
 use BinDependencies\Dependencies\ValidationError;
 use BinDependencies\Dependencies\Validator;
 use BinDependencies\Dependencies\VersionResolverInterface;
@@ -20,6 +21,8 @@ class ValidatorTestCase extends TestCase
     protected $validator;
 
     protected $config;
+
+    protected $phpVersion = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION . '.' . PHP_RELEASE_VERSION;
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
@@ -78,7 +81,7 @@ class ValidatorTestCase extends TestCase
 
     public function testValidateInstalledVersionUnsatisfactory()
     {
-        $path = $this->binPath . '/php';
+        $path = Utils::which('php');
         $this->config->get('binaries', [])->willReturn(['php'])->shouldBeCalledTimes(1);
         $this->versionResolver->resolve($path)->willReturn(1000)->shouldBeCalledTimes(1);
 
@@ -104,9 +107,9 @@ class ValidatorTestCase extends TestCase
 
     public function testValidateConstrainedPass()
     {
-        $path = $this->binPath . '/php';
+        $path = Utils::which('php');
         $this->config->get('binaries', [])->willReturn(['php'])->shouldBeCalledTimes(1);
-        $this->versionResolver->resolve($path)->willReturn(PHP_VERSION)->shouldBeCalledTimes(1);
+        $this->versionResolver->resolve($path)->willReturn($this->phpVersion)->shouldBeCalledTimes(1);
 
         $result = $this->validator->validate('php', '>5.6');
 
@@ -116,7 +119,7 @@ class ValidatorTestCase extends TestCase
     public function testValidateListPass()
     {
         $path = $this->binPath . '/validate-pass';
-        $phpPath = $this->binPath . '/php';
+        $phpPath = Utils::which('php');
 
         touch($path);
         chmod($path, 0700);
@@ -133,13 +136,13 @@ class ValidatorTestCase extends TestCase
     public function testValidateListFail()
     {
         $path = $this->binPath . '/validate-pass';
-        $phpPath = $this->binPath . '/php';
+        $phpPath = Utils::which('php');
 
         touch($path);
         chmod($path, 0700);
 
         $this->config->get('binaries', [])->willReturn(['php'])->shouldBeCalledTimes(2);
-        $this->versionResolver->resolve($phpPath)->willReturn(PHP_VERSION)->shouldBeCalledTimes(1);
+        $this->versionResolver->resolve($phpPath)->willReturn($this->phpVersion)->shouldBeCalledTimes(1);
 
         $result = $this->validator->validateList(['validate-pass', 'php' => '<=5.6']);
 

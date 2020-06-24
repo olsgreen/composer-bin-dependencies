@@ -15,7 +15,7 @@ trait BinPathTools
         $this->binPath = array_shift($paths);
 
         if (!is_dir($this->binPath)) {
-            mkdir($this->binPath);
+            mkdir($this->binPath, 0777, true);
         }
     }
 }
