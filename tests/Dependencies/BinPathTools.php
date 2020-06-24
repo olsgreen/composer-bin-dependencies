@@ -13,5 +13,9 @@ trait BinPathTools
         $paths = explode(PATH_SEPARATOR, $_SERVER['PATH']);
 
         $this->binPath = array_shift($paths);
+
+        if (!is_dir($this->binPath)) {
+            mkdir($this->binPath);
+        }
     }
 }
