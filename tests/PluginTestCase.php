@@ -37,6 +37,11 @@ class PluginTestCase extends TestCase
 
         $this->validator = $this->prophet->prophesize(Validator::class);
 
+        $this->bootPlugin();
+    }
+
+    protected function bootPlugin()
+    {
         $this->plugin = new Plugin();
         $this->plugin->setValidator($this->validator->reveal());
         $this->plugin->activate($this->composer->reveal(), $this->io->reveal());
@@ -92,6 +97,37 @@ class PluginTestCase extends TestCase
         $this->package->getExtra()->willReturn(['binary-dependencies' => []])->shouldBeCalledTimes(1);
 
         $this->plugin->validatePackageDependencies($this->package->reveal());
+    }
+
+    public function testEnabledByDefault()
+    {
+        $this->assertTrue($this->plugin->isEnabled());
+    }
+
+    public function testDisableByEnv()
+    {
+        putenv('DISABLE_COMPOSER_BIN_DEPS=1');
+
+        $this->bootPlugin();
+
+        $this->assertFalse($this->plugin->isEnabled());
+
+        putenv('DISABLE_COMPOSER_BIN_DEPS=0');
+    }
+
+    public function testDisable()
+    {
+        $this->plugin->disable();
+
+        $this->assertFalse($this->plugin->isEnabled());
+    }
+
+    public function testEnable()
+    {
+        $this->plugin->disable();
+        $this->plugin->enable();
+
+        $this->assertTrue($this->plugin->isEnabled());
     }
 
     public function testValidatePackageDependenciesWarningsPassed()
@@ -230,7 +266,7 @@ class PluginTestCase extends TestCase
 
     protected function setRootPackageValidationExpectations()
     {
-        if (!$this->plugin::hasRootPackageBeenValidated()) {
+        if (!$this->plugin->hasRootPackageBeenValidated()) {
             $root = $this->prophet->prophesize(RootPackage::class);
             $root->getExtra()->willReturn([]);
 
@@ -245,6 +281,17 @@ class PluginTestCase extends TestCase
         $this->package->getExtra()->willReturn([]);
 
         $event->getOperation()->willReturn($operation->reveal())->shouldBeCalledTimes(1);
+
+        $this->plugin->validateEventDependencies($event->reveal());
+    }
+
+    public function testValidateEventDependenciesDisabled()
+    {
+        $this->plugin->disable();
+
+        $event = $this->prophet->prophesize(PackageEvent::class);
+
+        $this->package->getExtra()->willReturn([]);
 
         $this->plugin->validateEventDependencies($event->reveal());
     }

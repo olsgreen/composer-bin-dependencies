@@ -61,6 +61,12 @@ You can validate dependencies are available using either require or warn.
 }
 ```
 
+#### Disabling The Plugin
+Sometimes you may need to disable the plugin, you can achieve this by setting the environment variable `DISABLE_COMPOSER_BIN_DEPS` with a value of `1` before running composer commands.
+This can be achieved by running the following command in your terminal:
+
+    export DISABLE_COMPOSER_BIN_DEPS=1
+
 #### Version Constraints
 Only explicit binaries support version constraints, this is due to the need to call the binary to obtain its version number. The definitions can be found [binaries.json](https://github.com/olsgreen/composer-bin-dependencies/blob/master/config/binaries.json) configuration file, 
 feel free to open a pull request to add more.

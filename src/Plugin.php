@@ -27,7 +27,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @var bool
      */
-    protected static $rootPackageValidated = false;
+    protected $rootPackageValidated = false;
 
     /**
      * Composer instance.
@@ -58,6 +58,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     protected $validator;
 
     /**
+     * Is the plugin enabled?
+     *
+     * @var bool
+     */
+    protected $enabled = true;
+
+    /**
      * Plugin constructor.
      */
     public function __construct()
@@ -65,6 +72,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $this->setDefaultConfigurationRepository();
 
         $this->setValidator(new Validator($this->config));
+
+        $this->enabled = !boolval(
+            getenv('DISABLE_COMPOSER_BIN_DEPS')
+        );
     }
 
     /**
@@ -128,9 +139,43 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @return bool
      */
-    public static function hasRootPackageBeenValidated()
+    public function hasRootPackageBeenValidated()
     {
-        return static::$rootPackageValidated;
+        return $this->rootPackageValidated;
+    }
+
+    /**
+     * Get's whether the plugin is enabled.
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * Enable the plugin.
+     *
+     * @return $this
+     */
+    public function enable()
+    {
+        $this->enabled = true;
+
+        return $this;
+    }
+
+    /**
+     * Disable the plugin.
+     *
+     * @return $this
+     */
+    public function disable()
+    {
+        $this->enabled = false;
+
+        return $this;
     }
 
     /**
@@ -205,10 +250,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function validateRootDependencies()
     {
-        if (static::$rootPackageValidated === false) {
+        if ($this->rootPackageValidated === false) {
             $this->validatePackageDependencies($this->composer->getPackage());
 
-            static::$rootPackageValidated = true;
+            $this->rootPackageValidated = true;
         }
     }
 
@@ -219,14 +264,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      * @throws DependencyException
      */
     public function validateEventDependencies(PackageEvent $event)
-    {        
-        $this->validateRootDependencies();
+    {
+        if ($this->isEnabled()) {
+            $this->validateRootDependencies();
 
-        $op = $event->getOperation();
-        if ($op instanceof InstallOperation) {
-            $this->validatePackageDependencies($op->getPackage());
-        } elseif ($op instanceof UpdateOperation) {
-            $this->validatePackageDependencies($op->getTargetPackage());
+            $op = $event->getOperation();
+            if ($op instanceof InstallOperation) {
+                $this->validatePackageDependencies($op->getPackage());
+            } elseif ($op instanceof UpdateOperation) {
+                $this->validatePackageDependencies($op->getTargetPackage());
+            }
         }
     }
 }
