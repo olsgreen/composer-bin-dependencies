@@ -1,6 +1,6 @@
 {
     "name": "olsgreen/composer-bin-dependencies",
-    "description": "A composer plugin to enforce local binary dependency constraints are met on package installation.",
+    "description": "A composer plugin to check that local binaries / executables are installed and are of the correct version before package install.",
     "type": "composer-plugin",
     "license": "MIT",
     "authors": [

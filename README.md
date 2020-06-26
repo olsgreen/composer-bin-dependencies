@@ -6,13 +6,12 @@ Composer Bin(ary) Dependencies
 ![Tests](https://github.com/olsgreen/composer-bin-dependencies/workflows/Tests/badge.svg)
 
 
-A composer plugin to enforce local binary dependency constraints are met on package installation.
+A composer plugin to check that local binaries / executables are installed and are of the correct version before package install.
 
-Composer Bin Dependencies plugin is intended to prevent or warn users of missing binary / executable 
-dependencies when installing a project or a library. 
+Composer Bin Dependencies plugin can warn users of these missing dependencies or prevent installation completely. 
 
-An example would be a package which relies on `git` being available and ar or newer than version `2.0`. 
-By requiring this plugin and adding the constraint shown below to you `package.json', you can prevent installation (or only warn of it's absence):
+An example would be a package which relies on `git` being available with a version higher than `2.0`. 
+By requiring this plugin and adding the constraint shown below to you `package.json', you can prevent installation:
 
     ...
     "extra": {
@@ -63,7 +62,7 @@ You can validate dependencies are available using either require or warn.
 ```
 
 #### Version Constraints
-Only explicit binaries support version constraints, this is due to the need to call the binary to obtain its version number. The definitions can be found [binaries.json](http://) configuration file, 
+Only explicit binaries support version constraints, this is due to the need to call the binary to obtain its version number. The definitions can be found [binaries.json](https://github.com/olsgreen/composer-bin-dependencies/blob/master/config/binaries.json) configuration file, 
 feel free to open a pull request to add more.
 
 #### License
