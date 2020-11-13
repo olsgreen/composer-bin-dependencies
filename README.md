@@ -8,6 +8,8 @@ Composer Bin(ary) Dependencies
 
 A composer plugin to check that local binaries / executables are installed and are of the correct version before package install.
 
+**If you require composer 2.x support please use version >= 1.2.**
+
 Composer Bin Dependencies plugin can warn users of these missing dependencies or prevent installation completely. 
 
 An example would be a package which relies on `git` being available with a version higher than `2.0`. 
