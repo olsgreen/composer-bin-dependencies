@@ -10,7 +10,7 @@ jobs:
       matrix:
         php: [7.4,8.0,8.1,8.2,8.3,8.4]
         dependency-version: [prefer-stable, prefer-lowest]
-        composer: [v1, v2]
+        composer: [v2]
 
     name: PHP ${{ matrix.php }}  - Composer ${{ matrix.composer }} (${{ matrix.dependency-version }})
 
