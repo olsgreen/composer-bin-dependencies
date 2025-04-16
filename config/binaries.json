@@ -9,5 +9,6 @@
     "tar",
     "wkhtmltopdf",
     "yarn",
-    "gs"
+    "gs",
+    "tesseract"
 ]
