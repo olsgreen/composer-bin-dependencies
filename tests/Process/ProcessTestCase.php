@@ -52,8 +52,7 @@ class ProcessTestCase extends TestCase
         $process = new Process(
             '/usr/local/bin/sdssd',
             $descriptors = [
-                false,
-                STDIN,  // STDOUT
+                1 => STDIN,  // STDOUT
             ]
         );
 
